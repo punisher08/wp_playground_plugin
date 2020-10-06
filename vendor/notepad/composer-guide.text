@@ -1,0 +1,4 @@
+composer init
+composer install
+//rename autoload dir command
+--composer dump-autoload---

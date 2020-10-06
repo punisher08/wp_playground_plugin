@@ -1,0 +1,125 @@
+<?php
+/**
+ * @package playground
+ */
+/*
+Plugin Name: playground
+Plugin URI: https://playground.com/
+Description: A custom plugin. make out of this world functions
+Version: 1.0.0
+Author: Automattic
+Author URI: https://automattic.com/wordpress-plugins/
+License: GPLv2 or later
+Text Domain: playground
+*/
+/*
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+Copyright 2020
+*/
+//public or default function can be access anywhere
+//protected can be access only to its class and to the class that extends it
+//private only on its class
+
+// if( ! defined('ABSPATH' )){
+//     die('you can\t access this file' );
+// }
+
+defined ('ABSPATH') or die('The file you are trying to access is forbidden');
+
+// if(! function_exists('add_action')){
+//     echo 'You cant access this file';
+//     exit;
+// 
+if(file_exists( dirname(__FILE__).'/vendor/autoload.php')){
+    require_once dirname(__FILE__).'/vendor/autoload.php';
+}
+use Inc\Base\Activate;
+use Inc\Base\Deactivate;
+use Inc\Pages\Admin;
+
+if( !class_exists('PlayGround')){
+class PlayGround
+{
+
+    public $plugin_name;
+
+    function __construct(){
+    // Hooking up all functions inside this function will load when opening this project
+    $this->create_post_type();
+   $this->plugin_name = plugin_basename(__FILE__);
+
+    }
+    //can only access inside this class but can extend in other class
+    protected function create_post_type(){
+        add_action('init',array($this,'custom_post_type'));
+    }
+    //this is registered on the new instance of the class
+    function register_styles(){
+        add_action('admin_enqueue_scripts',array($this,'enqueue'));
+        
+        add_action('admin_menu',array($this,'add_admin_pages'));
+        
+        add_filter("plugin_action_links_$this->plugin_name",array($this,'settings_link'));
+        // echo $this->plugin_name;
+    }
+    function settings_link($links){
+        //add custom links
+        $settings_link = '<a href="admin.php?page=playground_plugin">Settings</a>';
+        array_push($links,$settings_link);
+        return $links;
+        
+
+    }
+    function add_admin_pages(){
+        add_menu_page('Playground Plugin','Playground','manage_options','playground_plugin',
+        array($this,'admin_index'),'dashicons-buddicons-replies',110);
+    }
+    function admin_index(){
+        //require template
+        require_once plugin_dir_path(__FILE__).'templates/admin.php';
+        
+    }
+
+     function activate(){
+        // require_once plugin_dir_path(__FILE__).'inc/Activate.php';
+
+        Activate::activate();
+    }
+    function deactivate(){
+        // require_once plugin_dir_path(__FILE__).'inc/Activate.php';
+
+        Deactivate::deactivate();
+    }
+     function enqueue(){
+        wp_enqueue_style('mypluginstyle',plugins_url('/assets/mystyle.css', __FILE__ ));
+        wp_enqueue_script('mypluginscript',plugins_url('/assets/myscript.js', __FILE__ ));
+        }
+
+     function custom_post_type(){
+         register_post_type('playground',[
+             'public' => true,
+             'label' => 'Playgrounds'
+         ]);
+     }    
+}
+//Instantiation, of the class
+// if( class_exists('PlayGround')){
+        //creating a new instance of the class and for security purpose
+        $playGround = new PlayGround();
+        $playGround->register_styles();
+       
+// }
+    //activate
+    // $activate = new Activate();
+    register_activation_hook( __FILE__,array($playGround,'activate') );  
+    //deactivate hook function in other file
+    // require_once plugin_dir_path(__FILE__).'inc/playground-deactivate.php';
+    // $deactivate = new Deactivate();
+    register_deactivation_hook( __FILE__, array($playGround,'deactivate') );  
+    //uninstall
+
+}

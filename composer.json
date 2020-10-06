@@ -1,0 +1,19 @@
+{
+  "name": "webdev/playground",
+  "description": "Starter plugin",
+  "type": "project",
+  "license": "GPL",
+  "authors": [
+    {
+      "name": "punisher08",
+      "email": "jhomignacio08@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "Inc\\": "./inc"
+    }
+  }
+}
